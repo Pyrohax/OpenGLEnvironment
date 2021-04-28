@@ -3,20 +3,33 @@
 
 #include <iostream>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void ErrorCallback(int anError, const char* aDescription)
 {
-    glViewport(0, 0, width, height);
+    printf("%i %s\n", anError, aDescription);
 }
 
-void processInput(GLFWwindow* window)
+void FrameBufferSizeCallback(GLFWwindow* /*aWindow*/, int aWidth, int aHeight)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+    glViewport(0, 0, aWidth, aHeight);
+}
+
+void ProcessInput(GLFWwindow* aWindow)
+{
+    if (glfwGetKey(aWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(aWindow, true);
 }
 
 int main()
 {
-    glfwInit();
+    glfwSetErrorCallback(ErrorCallback);
+
+    if (!glfwInit())
+    {
+        std::cout << "Failed to initialize GLFW" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -24,7 +37,7 @@ int main()
     GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Environment", nullptr, nullptr);
     if (!window)
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        std::cout << "Failed to create a GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
@@ -39,11 +52,11 @@ int main()
 
     glViewport(0, 0, 800, 600);
 
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
 
     while (!glfwWindowShouldClose(window))
     {
-        processInput(window);
+        ProcessInput(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
